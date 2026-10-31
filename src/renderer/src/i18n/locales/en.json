@@ -19896,7 +19896,9 @@
       "railEmptyMessage": "Message",
       "prompt": {
         "collapse": "Collapse",
-        "expand": "Expand"
+        "expand": "Expand",
+        "answer": "Answer",
+        "review": "Review"
       },
       "question": {
         "step": "Step {{value0}}",

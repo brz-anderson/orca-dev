@@ -19254,7 +19254,9 @@
       "loadingEarlierMessages": "Cargando mensajes anteriores…",
       "prompt": {
         "collapse": "Contraer",
-        "expand": "Expandir"
+        "expand": "Expandir",
+        "answer": "Responder",
+        "review": "Revisar"
       },
       "question": {
         "step": "Paso {{value0}}",

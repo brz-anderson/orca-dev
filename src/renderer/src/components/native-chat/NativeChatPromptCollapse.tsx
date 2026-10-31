@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronUp } from 'lucide-react'
+import { ChevronDown, ChevronUp, CircleHelp, Shield } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { ShortcutKeyCombo } from '@/components/ShortcutKeyCombo'
@@ -47,21 +47,37 @@ export function nativeChatPromptCardTitle(card: NonNullable<InteractivePromptCar
 
 /** A collapsed prompt above the usable composer; expanding gives it the input again. */
 export function NativeChatPromptStrip({
+  kind,
   title,
   onExpand
 }: {
+  kind: NonNullable<InteractivePromptCard>['kind']
   title: string
   onExpand: () => void
 }): React.JSX.Element {
+  const Icon = kind === 'approval' ? Shield : CircleHelp
+  const action =
+    kind === 'approval'
+      ? translate('components.native-chat.prompt.review', 'Review')
+      : translate('components.native-chat.prompt.answer', 'Answer')
   return (
     <div className="shrink-0 bg-chat-canvas">
       <div className="mx-auto w-full max-w-(--chat-content-max-width) px-3 pt-2 sm:px-4">
         <div
           data-native-chat-prompt-strip="true"
-          className="flex items-center gap-2 rounded-lg border border-input bg-card py-1 pr-1.5 pl-3.5 shadow-xs"
+          data-native-chat-prompt-kind={kind}
+          className="flex items-center gap-2 rounded-lg border border-l-[3px] border-input border-l-primary bg-card py-1 pr-1.5 pl-3 shadow-xs"
         >
+          <Icon
+            aria-hidden="true"
+            data-native-chat-prompt-strip-icon={kind}
+            className="size-4 shrink-0 text-primary"
+          />
           <p className="min-w-0 flex-1 truncate text-sm font-medium text-foreground">{title}</p>
-          <NativeChatPromptCollapseToggle expanded={false} onToggle={onExpand} />
+          <Button type="button" variant="ghost" size="xs" aria-expanded={false} onClick={onExpand}>
+            {action}
+            <ChevronUp aria-hidden="true" />
+          </Button>
         </div>
       </div>
     </div>

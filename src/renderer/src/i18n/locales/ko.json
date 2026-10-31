@@ -19284,7 +19284,9 @@
       "loadingEarlierMessages": "이전 메시지 로드 중…",
       "prompt": {
         "collapse": "접기",
-        "expand": "펼치기"
+        "expand": "펼치기",
+        "answer": "답변",
+        "review": "검토"
       },
       "question": {
         "step": "{{value0}} 단계",

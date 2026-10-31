@@ -19395,7 +19395,9 @@
       "loadingEarlierMessages": "Chargement des messages précédents…",
       "prompt": {
         "collapse": "Réduire",
-        "expand": "Développer"
+        "expand": "Développer",
+        "answer": "Répondre",
+        "review": "Examiner"
       },
       "question": {
         "step": "Étape {{value0}}",

@@ -87,7 +87,11 @@ export function NativeChatStructuredPromptCard({
         ) : null}
       </div>
       {collapse.collapsed ? (
-        <NativeChatPromptStrip title={title} onExpand={collapse.expand} />
+        <NativeChatPromptStrip
+          kind={approval ? 'approval' : 'question'}
+          title={title}
+          onExpand={collapse.expand}
+        />
       ) : null}
     </>
   )

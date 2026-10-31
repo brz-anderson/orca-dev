@@ -19250,7 +19250,9 @@
       "loadingEarlierMessages": "正在加载更早的消息…",
       "prompt": {
         "collapse": "收起",
-        "expand": "展开"
+        "expand": "展开",
+        "answer": "回答",
+        "review": "审核"
       },
       "question": {
         "step": "步骤 {{value0}}",

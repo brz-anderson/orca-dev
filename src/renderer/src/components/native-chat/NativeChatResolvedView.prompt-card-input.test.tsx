@@ -238,7 +238,7 @@ describe('NativeChatResolvedView prompt cards own the input region', () => {
     )
     expect(screen.queryAllByText(/Awaiting user input/)).toHaveLength(0)
     expect(screen.getByTestId('native-chat-composer').closest('[hidden]')).toBeNull()
-    fireEvent.click(screen.getByRole('button', { name: 'Expand' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Review' }))
     expect(document.activeElement).toBe(
       document.querySelector('[data-native-chat-approval-card="true"]')
     )
@@ -301,7 +301,7 @@ describe('NativeChatResolvedView prompt cards own the input region', () => {
     expect(document.querySelector('[data-native-chat-prompt-strip="true"]')).toBeNull()
 
     fireEvent.click(screen.getByRole('button', { name: 'Collapse' }))
-    fireEvent.click(screen.getByRole('button', { name: 'Expand' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Answer' }))
     expect(screen.getByTestId('native-chat-question-card-title')).toHaveTextContent('Which mode?')
     expect(screen.getByPlaceholderText('Type your answer')).toHaveValue('turbo')
   })

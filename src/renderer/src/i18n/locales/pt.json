@@ -20041,7 +20041,9 @@
       "loadingEarlierMessages": "Carregando mensagens anteriores…",
       "prompt": {
         "collapse": "Recolher",
-        "expand": "Expandir"
+        "expand": "Expandir",
+        "answer": "Responder",
+        "review": "Revisar"
       },
       "rewind": {
         "unsupported": "Este chat não permite voltar a uma mensagem anterior.",

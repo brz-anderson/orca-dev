@@ -62,10 +62,16 @@ function strip(): HTMLElement | null {
   return document.querySelector<HTMLElement>('[data-native-chat-prompt-strip="true"]')
 }
 
-async function settleFocus(): Promise<void> {
-  await act(async () => {
-    await new Promise((resolve) => setTimeout(resolve, 100))
-  })
+function stripIcon(): string | null | undefined {
+  return strip()
+    ?.querySelector('[data-native-chat-prompt-strip-icon]')
+    ?.getAttribute('data-native-chat-prompt-strip-icon')
+}
+
+async function composerTakesFocus(): Promise<void> {
+  await vi.waitFor(() =>
+    expect(document.activeElement).toBe(screen.getByTestId('structured-composer'))
+  )
 }
 
 describe('a structured prompt card collapses to a strip above the usable composer', () => {
@@ -79,16 +85,18 @@ describe('a structured prompt card collapses to a strip above the usable compose
     fireEvent.click(within(card).getByRole('button', { name: /Web/ }))
 
     act(() => fireEvent.click(within(card).getByRole('button', { name: 'Collapse' })))
-    await settleFocus()
+    await composerTakesFocus()
     expect(card.isConnected).toBe(true)
     expect(card.closest('[hidden]')).not.toBeNull()
     expect(strip()?.textContent).toContain('Which targets?')
+    expect(strip()?.getAttribute('data-native-chat-prompt-kind')).toBe('question')
+    expect(stripIcon()).toBe('question')
     expect(screen.getByTestId('structured-composer')).toBeTruthy()
     expect(document.activeElement).toBe(screen.getByTestId('structured-composer'))
     expect(mocks.cancel).not.toHaveBeenCalled()
     expect(mocks.respond).not.toHaveBeenCalled()
 
-    act(() => fireEvent.click(within(strip()!).getByRole('button', { name: 'Expand' })))
+    act(() => fireEvent.click(within(strip()!).getByRole('button', { name: 'Answer' })))
     const reopened = screen.getByRole('group', { name: 'Which targets?' })
     expect(reopened).toBe(card)
     expect(reopened.closest('[hidden]')).toBeNull()
@@ -109,13 +117,15 @@ describe('a structured prompt card collapses to a strip above the usable compose
     expect(within(card).getByRole('button', { name: 'Cancel' })).toBeTruthy()
 
     act(() => fireEvent.keyDown(card, { key: 'Escape' }))
-    await settleFocus()
+    await composerTakesFocus()
     expect(mocks.cancel).not.toHaveBeenCalled()
     expect(card.closest('[hidden]')).not.toBeNull()
     expect(strip()?.textContent).toContain('Allow command?')
+    expect(strip()?.getAttribute('data-native-chat-prompt-kind')).toBe('approval')
+    expect(stripIcon()).toBe('approval')
     expect(screen.getByTestId('structured-composer')).toBeTruthy()
 
-    act(() => fireEvent.click(within(strip()!).getByRole('button', { name: 'Expand' })))
+    act(() => fireEvent.click(within(strip()!).getByRole('button', { name: 'Review' })))
     expect(card.closest('[hidden]')).toBeNull()
     expect(screen.queryByTestId('structured-composer')).toBeNull()
 

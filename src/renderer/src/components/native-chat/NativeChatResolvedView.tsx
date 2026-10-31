@@ -389,6 +389,7 @@ export function NativeChatResolvedView({
       ) : null}
       {collapsedCard ? (
         <NativeChatPromptStrip
+          kind={collapsedCard.kind}
           title={nativeChatPromptCardTitle(collapsedCard)}
           onExpand={promptCardPresentation.expand}
         />
