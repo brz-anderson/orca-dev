@@ -11,6 +11,7 @@ import type { Components } from 'react-markdown'
 import { translate } from '@/i18n/i18n'
 import { MarkdownTableOfContentsPanel } from './MarkdownTableOfContentsPanel'
 import { MarkdownPreviewBody } from './MarkdownPreviewBody'
+import { MarkdownFrontMatterBlock } from './MarkdownFrontMatterBlock'
 import { MarkdownPreviewReviewToolbar } from './MarkdownPreviewReviewToolbar'
 import { MarkdownPreviewSearchBar } from './MarkdownPreviewSearchBar'
 import { NATIVE_CHAT_THEME_SURFACE_CLASS } from '@/lib/native-chat-theme-surface-style'
@@ -116,14 +117,7 @@ export function MarkdownPreviewSurface({
           data-markdown-preview-incomplete={largePreview || undefined}
         >
           {frontMatter && frontmatterVisible ? (
-            <div className="mb-4 rounded border border-border/60 bg-muted/40 px-3 py-2">
-              <div className="mb-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-                {translate('auto.components.editor.MarkdownPreview.2b2b31382c', 'Front Matter')}
-              </div>
-              <pre className="max-h-48 overflow-auto whitespace-pre-wrap text-xs text-muted-foreground font-mono scrollbar-editor">
-                {frontMatterInner}
-              </pre>
-            </div>
+            <MarkdownFrontMatterBlock inner={frontMatterInner} />
           ) : null}
           {largePreview ? (
             <>

@@ -2,27 +2,25 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react
 import { createPortal } from 'react-dom'
 import { Copy, Maximize2, WrapText, X } from 'lucide-react'
 import { translate } from '@/i18n/i18n'
+import EditorViewToggle from '@/components/editor/EditorViewToggle'
+import { nativeChatCodeCopyText } from '../native-chat-code-copy-text'
+import { BrzaMarkdownExpandPreview } from './BrzaMarkdownExpandPreview'
+import { brzaCodeBlockLanguage, isBrzaMarkdownFence } from './brza-markdown-fence'
 
 const CONTENT = '[data-native-chat-code-content]'
 const BLOCK = '[data-native-chat-code-block]'
 const OVERLAY = '[data-brza-expand-overlay]'
 const HIDE_DELAY_MS = 200
+const MARKDOWN_MODES = ['preview', 'source'] as const
 
-/** Only a block that scrolls, either way, has something to expand. */
-export function brzaBlockScrolls(element: Element): boolean {
-  return (
-    element.scrollHeight > element.clientHeight + 1 || element.scrollWidth > element.clientWidth + 1
-  )
-}
-
-/** The code, command output or diff under the pointer, when it scrolls inside this chat. */
+/** The code, command output or diff under the pointer, scrolling or not (PLN-001 R62.2). */
 export function brzaExpandTarget(node: EventTarget | null, root: Element): HTMLElement | null {
   if (!(node instanceof Element) || node.closest(OVERLAY)) {
     return null
   }
   const block = node.closest(BLOCK)
   const content = node.closest<HTMLElement>(CONTENT) ?? block?.querySelector<HTMLElement>(CONTENT)
-  return content && root.contains(content) && brzaBlockScrolls(content) ? content : null
+  return content && root.contains(content) ? content : null
 }
 
 type Hover = { element: HTMLElement; top: number; left: number }
@@ -54,10 +52,11 @@ export function BrzaExpandLayer(): React.JSX.Element {
       }
       const block = element.closest(BLOCK)
       const rect = (block ?? element).getBoundingClientRect()
-      // Left of the block's own header actions, which sit at its top right.
+      // Left of the block's own actions, at its top right; without a header row it straddles the top border, off the text.
+      const header = block?.querySelector('[data-code-language]')
       setHover({
         element,
-        top: Math.max(rect.top + 4, 4),
+        top: Math.max(rect.top + (header ? 4 : -12), 4),
         left: rect.right - 28 - (block ? 96 : 4)
       })
     }
@@ -112,12 +111,17 @@ function BrzaExpandOverlay(props: {
   const [rect, setRect] = useState(() => root.getBoundingClientRect())
   const [wrapped, setWrapped] = useState(true)
   const [copied, setCopied] = useState(false)
-  const text = source.innerText ?? source.textContent ?? ''
+  const markdown = isBrzaMarkdownFence(brzaCodeBlockLanguage(source))
+  const [mode, setMode] = useState<(typeof MARKDOWN_MODES)[number]>(markdown ? 'preview' : 'source')
+  // A fence's text is its source verbatim; innerText also breaks a diff's row divs into lines.
+  const text = markdown
+    ? nativeChatCodeCopyText(source.textContent ?? '')
+    : (source.innerText ?? source.textContent ?? '')
   const lines = text.split('\n').length
 
   useLayoutEffect(() => {
     const body = bodyRef.current
-    if (!body) {
+    if (!body || mode !== 'source') {
       return
     }
     // A copy, so the transcript's own row stays where React put it.
@@ -132,7 +136,7 @@ function BrzaExpandOverlay(props: {
       })
     }
     body.replaceChildren(clone)
-  }, [source])
+  }, [source, mode])
 
   useEffect(() => {
     const onResize = (): void => setRect(root.getBoundingClientRect())
@@ -170,13 +174,22 @@ function BrzaExpandOverlay(props: {
         <span className="mr-auto">
           {translate('brza.native-chat.expandedLines', '{{count}} lines', { count: lines })}
         </span>
-        <OverlayButton
-          label={translate('components.native-chat.wrapLines', 'Wrap lines')}
-          pressed={wrapped}
-          onClick={() => setWrapped(!wrapped)}
-        >
-          <WrapText className="size-3.5" />
-        </OverlayButton>
+        {markdown ? (
+          <EditorViewToggle
+            value={mode}
+            modes={MARKDOWN_MODES}
+            onChange={(value) => setMode(value === 'preview' ? 'preview' : 'source')}
+          />
+        ) : null}
+        {mode === 'source' ? (
+          <OverlayButton
+            label={translate('components.native-chat.wrapLines', 'Wrap lines')}
+            pressed={wrapped}
+            onClick={() => setWrapped(!wrapped)}
+          >
+            <WrapText className="size-3.5" />
+          </OverlayButton>
+        ) : null}
         <OverlayButton
           label={
             copied
@@ -194,12 +207,18 @@ function BrzaExpandOverlay(props: {
           <X className="size-3.5" />
         </OverlayButton>
       </div>
-      <div
-        ref={bodyRef}
-        className={`scrollbar-sleek min-h-0 flex-1 overflow-auto p-3 font-mono text-chat-code text-chat-code-foreground ${
-          wrapped ? '[&>*]:whitespace-pre-wrap' : '[&>*]:whitespace-pre'
-        }`}
-      />
+      {mode === 'preview' ? (
+        <div className="min-h-0 flex-1">
+          <BrzaMarkdownExpandPreview content={text} />
+        </div>
+      ) : (
+        <div
+          ref={bodyRef}
+          className={`scrollbar-sleek min-h-0 flex-1 overflow-auto p-3 font-mono text-chat-code text-chat-code-foreground ${
+            wrapped ? '[&>*]:whitespace-pre-wrap' : '[&>*]:whitespace-pre'
+          }`}
+        />
+      )}
     </div>
   )
 }
